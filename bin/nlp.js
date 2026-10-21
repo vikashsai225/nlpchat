@@ -171,21 +171,34 @@ function getLocalIp() {
 
 function runShare() {
   banner();
-  console.log(`${COLORS.yellow}▶ Building frontend static bundle for production...${COLORS.reset}\n`);
-  try {
-    execSync('npm run --prefix frontend build', { cwd: ROOT_DIR, stdio: 'inherit' });
-  } catch (err) {
-    console.error(`${COLORS.red}Build failed: ${err.message}${COLORS.reset}`);
-    process.exit(1);
+  const fs = require('fs');
+  const distHtml = path.join(FRONTEND_DIR, 'dist', 'index.html');
+
+  if (!fs.existsSync(distHtml)) {
+    console.log(`${COLORS.yellow}▶ Building frontend static bundle for production...${COLORS.reset}\n`);
+    try {
+      execSync('npm run --prefix frontend build', { cwd: ROOT_DIR, stdio: 'inherit' });
+    } catch (err) {
+      console.error(`${COLORS.red}Build failed: ${err.message}${COLORS.reset}`);
+      process.exit(1);
+    }
   }
 
   const localIp = getLocalIp();
-  console.log(`\n${COLORS.green}✔ Build complete! Starting unified fullstack server on port 5000...${COLORS.reset}`);
+  console.log(`\n${COLORS.green}✔ Starting unified server on port 5000...${COLORS.reset}`);
   console.log(`  ${COLORS.bright}Local URL:${COLORS.reset}        http://localhost:5000`);
   console.log(`  ${COLORS.bright}Wi-Fi Network URL:${COLORS.reset} http://${localIp}:5000 (Open on any phone on same Wi-Fi)\n`);
-  console.log(`${COLORS.cyan}▶ Generating Live Public HTTPS Link via Localtunnel...${COLORS.reset}\n`);
 
-  const cmd = `npx concurrently --kill-others-on-fail --prefix "[{name}]" --names "server,tunnel" --prefix-colors "green,cyan" "node backend/src/index.js" "npx --yes localtunnel --port 5000"`;
+  const cloudflaredBin = path.join(ROOT_DIR, 'bin', 'cloudflared.exe');
+  const hasCloudflared = fs.existsSync(cloudflaredBin);
+
+  console.log(`${COLORS.cyan}▶ Generating Live Public HTTPS Link via ${hasCloudflared ? 'Cloudflare Tunnel' : 'Localtunnel'}...${COLORS.reset}\n`);
+
+  const tunnelCmd = hasCloudflared
+    ? `"${cloudflaredBin}" tunnel --url http://localhost:5000`
+    : `npx --yes localtunnel --port 5000`;
+
+  const cmd = `npx concurrently --kill-others-on-fail --prefix "[{name}]" --names "server,tunnel" --prefix-colors "green,cyan" "node backend/src/index.js" "${tunnelCmd}"`;
 
   const child = spawn(cmd, {
     cwd: ROOT_DIR,

@@ -17,6 +17,7 @@
     "build": "npm run --prefix frontend build",
     "serve": "node backend/src/index.js",
     "share": "node ./bin/nlp.js share",
+    "live": "node ./bin/nlp.js share",
     "tunnel": "npx --yes localtunnel --port 5000"
   },
   "devDependencies": {
