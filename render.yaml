@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: nlpchat
+    env: node
+    plan: free
+    buildCommand: npm run install:all && npm run build
+    startCommand: node backend/src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
