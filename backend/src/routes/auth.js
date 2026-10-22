@@ -96,6 +96,7 @@ router.post('/phone-login', authLimiter, async (req, res) => {
       }
       delete user.password_hash;
       delete user.email;
+      user.displayName = user.display_name;
       const token = generateToken(user);
       return res.json({ user, token, isNewUser: false });
     }
@@ -106,6 +107,7 @@ router.post('/phone-login', authLimiter, async (req, res) => {
       let existingUser = db.get('SELECT * FROM users WHERE id = ?', [existingCheck.id]);
       delete existingUser.password_hash;
       delete existingUser.email;
+      existingUser.displayName = existingUser.display_name;
       const token = generateToken(existingUser);
       return res.json({ user: existingUser, token, isNewUser: false });
     }
@@ -152,6 +154,7 @@ router.post('/phone-login', authLimiter, async (req, res) => {
       [userId]
     );
 
+    newUser.displayName = newUser.display_name;
     const token = generateToken(newUser);
     return res.status(201).json({ user: newUser, token, isNewUser: true });
   } catch (error) {
@@ -299,6 +302,7 @@ router.post('/demo-login', async (req, res) => {
 
     delete user.password_hash;
     delete user.email;
+    user.displayName = user.display_name;
     const token = generateToken(user);
 
     res.json({ user, token });
@@ -310,7 +314,20 @@ router.post('/demo-login', async (req, res) => {
 
 // GET /api/auth/me
 router.get('/me', authenticateToken, (req, res) => {
-  res.json({ user: req.user });
+  try {
+    const user = db.get(
+      'SELECT id, username, phone, display_name, avatar_url, bio, preferred_receive_language, default_tone, allow_view_original, auto_delete_hours FROM users WHERE id = ?',
+      [req.user.id]
+    );
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    user.displayName = user.display_name;
+    res.json({ user });
+  } catch (error) {
+    console.error('Me endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch current user' });
+  }
 });
 
 module.exports = router;
