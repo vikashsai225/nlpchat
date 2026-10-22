@@ -1,10 +1,11 @@
 services:
   - type: web
     name: nlpchat
-    env: node
+    runtime: node
     plan: free
-    buildCommand: npm install --include=dev && npm install --prefix backend && npm install --prefix frontend --include=dev && npm run --prefix frontend build
-    startCommand: node backend/src/index.js
+    region: oregon
+    buildCommand: npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production

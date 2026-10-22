@@ -58,6 +58,21 @@ function migrateUserPhoneNumbers() {
 
 migrateUserPhoneNumbers();
 
+function autoSeedIfEmpty() {
+  try {
+    const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();
+    if (!userCount || userCount.count === 0) {
+      console.log('Database is empty. Running initial seed...');
+      const seed = require('./seed');
+      seed();
+    }
+  } catch (err) {
+    console.warn('Auto-seed check note:', err.message);
+  }
+}
+
+autoSeedIfEmpty();
+
 /**
  * Execute a query that returns multiple rows
  * @param {string} sql 

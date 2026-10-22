@@ -277,4 +277,8 @@ async function seed() {
   console.log('Seeding completed successfully! 4 demo users ready (alice, bob, priya, carlos).');
 }
 
-seed();
+if (require.main === module) {
+  seed();
+}
+
+module.exports = seed;
