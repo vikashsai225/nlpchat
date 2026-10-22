@@ -16,12 +16,29 @@ function generateToken(user) {
   );
 }
 
+function canonicalizePhone(phone) {
+  if (!phone || typeof phone !== 'string') return '';
+  const clean = phone.trim().replace(/[\s()-]/g, '');
+  const digits = clean.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return `+91${digits}`;
+  }
+  if (digits.length === 12 && digits.startsWith('91')) {
+    return `+${digits}`;
+  }
+  if (digits.length === 11 && digits.startsWith('0')) {
+    return `+91${digits.slice(1)}`;
+  }
+  return clean.startsWith('+') ? `+${digits}` : `+91${digits}`;
+}
+
 function getPhoneVariants(phone) {
   if (!phone || typeof phone !== 'string') return [];
   const clean = phone.trim().replace(/[\s()-]/g, '');
   if (!clean) return [];
 
-  const variants = new Set([clean]);
+  const canonical = canonicalizePhone(clean);
+  const variants = new Set([clean, canonical]);
 
   if (clean.startsWith('+')) {
     const noPlus = clean.slice(1);
@@ -62,26 +79,45 @@ router.post('/phone-login', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Enter a valid phone number with 7 to 15 digits' });
     }
 
-    const variants = getPhoneVariants(cleanPhone);
+    const canonicalPhone = canonicalizePhone(cleanPhone);
+    const variants = Array.from(new Set([canonicalPhone, ...getPhoneVariants(cleanPhone)]));
     const placeholders = variants.map(() => '?').join(',');
     let user = db.get(`SELECT * FROM users WHERE phone IN (${placeholders})`, variants);
 
     // If user exists, direct login immediately!
     if (user) {
+      if (displayName && displayName.trim() && displayName.trim() !== user.display_name) {
+        user.display_name = displayName.trim();
+        db.run('UPDATE users SET display_name = ? WHERE id = ?', [user.display_name, user.id]);
+      }
+      if (user.phone !== canonicalPhone) {
+        user.phone = canonicalPhone;
+        db.run('UPDATE users SET phone = ? WHERE id = ?', [canonicalPhone, user.id]);
+      }
       delete user.password_hash;
       delete user.email;
       const token = generateToken(user);
       return res.json({ user, token, isNewUser: false });
     }
 
+    // Double check to ensure absolutely no duplicate user for this phone
+    let existingCheck = db.get('SELECT id FROM users WHERE phone = ?', [canonicalPhone]);
+    if (existingCheck) {
+      let existingUser = db.get('SELECT * FROM users WHERE id = ?', [existingCheck.id]);
+      delete existingUser.password_hash;
+      delete existingUser.email;
+      const token = generateToken(existingUser);
+      return res.json({ user: existingUser, token, isNewUser: false });
+    }
+
     // New user auto-registration with phone number
     const effectiveDisplayName = (displayName && displayName.trim())
       ? displayName.trim()
-      : `User ${cleanPhone.replace(/\D/g, '').slice(-4) || '101'}`;
+      : `User ${canonicalPhone.slice(-4) || '101'}`;
 
     let baseUsername = effectiveDisplayName.toLowerCase().replace(/[^a-z0-9]/g, '');
     if (!baseUsername || baseUsername.length < 3) {
-      baseUsername = `user_${cleanPhone.replace(/\D/g, '').slice(-4) || 'chat'}`;
+      baseUsername = `user_${canonicalPhone.slice(-4) || 'chat'}`;
     }
 
     let usernameCandidate = baseUsername;
@@ -94,14 +130,7 @@ router.post('/phone-login', authLimiter, async (req, res) => {
     const now = new Date().toISOString();
     const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${usernameCandidate}`;
     const dummyPasswordHash = await bcrypt.hash(uuidv4(), 10);
-
-    // Stored standard format: +91 if 10 digits without +, else keep with +
-    let storedPhone = cleanPhone;
-    if (cleanPhone.length === 10 && !cleanPhone.startsWith('+')) {
-      storedPhone = `+91${cleanPhone}`;
-    } else if (!cleanPhone.startsWith('+')) {
-      storedPhone = `+${cleanPhone}`;
-    }
+    const storedPhone = canonicalPhone;
 
     db.run(
       `INSERT INTO users (id, username, phone, email, password_hash, display_name, avatar_url, created_at)

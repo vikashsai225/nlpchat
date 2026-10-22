@@ -15,7 +15,7 @@ router.get('/search', (req, res) => {
     if (!q || !q.trim()) {
       // Return top users
       const users = db.query(
-        'SELECT id, username, display_name, avatar_url, bio, is_online, last_seen FROM users WHERE id != ? LIMIT 20',
+        'SELECT id, username, phone, display_name, avatar_url, bio, is_online, last_seen FROM users WHERE id != ? LIMIT 50',
         [currentUserId]
       );
       return res.json({ users });

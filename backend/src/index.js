@@ -59,6 +59,8 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     app: 'NLPChat Backend',
     timestamp: new Date().toISOString(),
+    nodeVersion: process.version,
+    isNodeSqlite: Boolean(db.isNodeSqlite),
     aiProviderActive: Boolean(config.GEMINI_API_KEY || config.OPENAI_API_KEY || config.ANTHROPIC_API_KEY),
     sqliteConnected: true
   });

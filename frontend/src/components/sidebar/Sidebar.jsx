@@ -130,12 +130,24 @@ export function Sidebar({ className = '' }) {
       {/* Search Input */}
       <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
+      {/* Quick Contacts Bar */}
+      <div className="px-3 py-1.5 flex items-center gap-2 border-b border-white/5 bg-white/[0.02]">
+        <button
+          onClick={() => setIsNewChatOpen(true)}
+          className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-emerald-500/20"
+        >
+          <Users className="w-3.5 h-3.5" />
+          <span>👥 View Contacts ({chats?.length || 0} active)</span>
+        </button>
+      </div>
+
       {/* Chat List */}
       <ChatList
         chats={chats}
         activeChatId={activeChatId}
         onSelectChat={setActiveChatId}
         searchQuery={searchQuery}
+        onOpenNewChat={() => setIsNewChatOpen(true)}
       />
 
       {/* Modals & Drawers */}
