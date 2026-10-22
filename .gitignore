@@ -21,8 +21,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Production Build Output
-dist/
 build/
+!frontend/dist
+!frontend/dist/**
 
 # IDE & OS
 .vscode/
@@ -30,3 +31,9 @@ build/
 .DS_Store
 Thumbs.db
 bin/cloudflared.exe
+bin/render.exe
+bin/render.zip
+bin/*.zip
+bin/*.md
+bin/LICENSE
+

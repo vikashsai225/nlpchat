@@ -6,7 +6,7 @@
     "nlp": "./bin/nlp.js"
   },
   "scripts": {
-    "build": "npm --prefix backend install --include=dev && npm --prefix frontend install --include=dev && npm --prefix frontend run build",
+    "build": "npm --prefix backend install --include=dev && (npm --prefix frontend install --include=dev && npm --prefix frontend run build || echo 'Using pre-built frontend')",
     "start": "node backend/src/index.js",
     "install:all": "npm install --include=dev && npm install --prefix backend && npm install --prefix frontend --include=dev",
     "dev": "node ./bin/nlp.js start",
