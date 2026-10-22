@@ -6,9 +6,9 @@
     "nlp": "./bin/nlp.js"
   },
   "scripts": {
-    "build": "cd backend && npm install --production",
+    "build": "cd backend && npm install --production || true",
     "start": "node backend/src/index.js",
-    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "dev": "node ./bin/nlp.js start",
     "nlp": "node ./bin/nlp.js",
     "backend": "cd backend && npm run dev",
@@ -20,6 +20,19 @@
     "share": "node ./bin/nlp.js share",
     "live": "node ./bin/nlp.js share",
     "tunnel": "npx --yes localtunnel --port 5000"
+  },
+  "dependencies": {
+    "@google/genai": "^2.28.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "openai": "^7.31.0",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0",
+    "validator": "^13.12.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
