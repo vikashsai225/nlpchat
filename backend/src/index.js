@@ -21,6 +21,9 @@ const aiRoutes = require('./routes/aiConfig');
 const app = express();
 const server = http.createServer(app);
 
+// Trust proxy for reverse proxies / Cloudflare tunnel
+app.set('trust proxy', 1);
+
 // Socket.IO configuration with CORS
 const io = new Server(server, {
   cors: {
@@ -96,9 +99,9 @@ app.use((err, req, res, next) => {
 
 // Start Server if executed directly
 if (require.main === module) {
-  server.listen(config.PORT, () => {
+  server.listen(config.PORT, '0.0.0.0', () => {
     console.log(`====================================================`);
-    console.log(`🚀 NLPChat Backend Server running on port ${config.PORT}`);
+    console.log(`🚀 NLPChat Backend Server running on http://0.0.0.0:${config.PORT}`);
     console.log(`🔒 Environment: ${config.NODE_ENV}`);
     console.log(`🤖 AI Provider: ${config.GEMINI_API_KEY ? 'Gemini Active' : config.OPENAI_API_KEY ? 'OpenAI Active' : 'Local Fallback Engine Active (Offline Ready)'}`);
     console.log(`💬 Socket.IO Real-time messaging ready`);

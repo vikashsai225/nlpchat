@@ -195,7 +195,7 @@ function runShare() {
   console.log(`${COLORS.cyan}▶ Generating Live Public HTTPS Link via ${hasCloudflared ? 'Cloudflare Tunnel' : 'Localtunnel'}...${COLORS.reset}\n`);
 
   const tunnelCmd = hasCloudflared
-    ? `"${cloudflaredBin}" tunnel --url http://localhost:5000`
+    ? `"${cloudflaredBin}" tunnel --url http://127.0.0.1:5000`
     : `npx --yes localtunnel --port 5000`;
 
   const cmd = `npx concurrently --kill-others-on-fail --prefix "[{name}]" --names "server,tunnel" --prefix-colors "green,cyan" "node backend/src/index.js" "${tunnelCmd}"`;
