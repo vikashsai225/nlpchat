@@ -2,20 +2,24 @@
   "name": "nlpchat-workspace",
   "version": "1.0.0",
   "description": "NLPChat - Production-quality WhatsApp-style web app with automatic message normalization",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "bin": {
     "nlp": "./bin/nlp.js"
   },
   "scripts": {
-    "build": "npm --prefix backend install --include=dev && (npm --prefix frontend install --include=dev && npm --prefix frontend run build || echo 'Using pre-built frontend')",
+    "build": "cd backend && npm install && (cd ../frontend && npm install && npm run build || echo 'Using dist')",
     "start": "node backend/src/index.js",
-    "install:all": "npm install --include=dev && npm install --prefix backend && npm install --prefix frontend --include=dev",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
     "dev": "node ./bin/nlp.js start",
     "nlp": "node ./bin/nlp.js",
-    "backend": "npm run --prefix backend dev",
-    "frontend": "npm run --prefix frontend dev",
-    "test": "npm test --prefix backend",
-    "test:watch": "npm run --prefix backend test:watch",
-    "seed": "npm run --prefix backend seed",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "test": "cd backend && npm test",
+    "test:watch": "cd backend && npm run test:watch",
+    "seed": "cd backend && npm run seed",
     "serve": "node backend/src/index.js",
     "share": "node ./bin/nlp.js share",
     "live": "node ./bin/nlp.js share",

@@ -66,8 +66,13 @@ app.get('/api/health', (req, res) => {
 
 // Serve frontend static build if dist exists
 const fs = require('fs');
-const distPath = path.resolve(__dirname, '../../frontend/dist');
-if (fs.existsSync(distPath)) {
+const candidateDistPaths = [
+  path.resolve(__dirname, '../../frontend/dist'),
+  path.resolve(__dirname, '../dist'),
+  path.resolve(__dirname, '../../dist')
+];
+const distPath = candidateDistPaths.find(p => fs.existsSync(p));
+if (distPath) {
   app.use(express.static(distPath));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {

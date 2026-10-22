@@ -1,0 +1,21 @@
+{
+  "short_name": "NLPChat",
+  "name": "NLPChat - Natural Language WhatsApp",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/identicon/svg?seed=nlpchat-app-192",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/identicon/svg?seed=nlpchat-app-512",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#111B21",
+  "theme_color": "#00A884",
+  "display": "standalone",
+  "orientation": "portrait"
+}
