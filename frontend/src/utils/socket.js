@@ -12,7 +12,8 @@ export function getSocket(token) {
   }
 
   if (!socketInstance) {
-    socketInstance = io(window.location.origin, {
+    const socketOrigin = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL || window.location.origin;
+    socketInstance = io(socketOrigin, {
       auth: { token },
       autoConnect: true,
       reconnection: true,
