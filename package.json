@@ -2,15 +2,11 @@
   "name": "nlpchat-workspace",
   "version": "1.0.0",
   "description": "NLPChat - Production-quality WhatsApp-style web app with automatic message normalization",
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
   "bin": {
     "nlp": "./bin/nlp.js"
   },
   "scripts": {
-    "build": "cd backend && npm install && (cd ../frontend && npm install && npm run build || echo 'Using dist')",
+    "build": "cd backend && npm install --production",
     "start": "node backend/src/index.js",
     "install:all": "cd backend && npm install && cd ../frontend && npm install",
     "dev": "node ./bin/nlp.js start",
